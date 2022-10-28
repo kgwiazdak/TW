@@ -43,7 +43,7 @@ public class Monitor {
         System.out.println("Producer thread ended");
     }
 
-    public int getRandomNumber(int min, int max) {
+    private int getRandomNumber(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
     }
 }
