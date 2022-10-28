@@ -9,12 +9,11 @@ public class Producer extends Thread {
 
     @Override
     public void run() {
-            try {
-                for (;;)
-                    monitor.produce();
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            for (; ; )
+                monitor.produce();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,4 +1,4 @@
-public class Consumer extends Thread{
+public class Consumer extends Thread {
     Monitor monitor;
     int repetitionRate;
 
@@ -10,7 +10,7 @@ public class Consumer extends Thread{
     @Override
     public void run() {
         try {
-            for (;;)
+            for (; ; )
                 monitor.consume();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

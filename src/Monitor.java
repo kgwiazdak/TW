@@ -8,7 +8,6 @@ public class Monitor {
     Condition producentCanProduce = lock.newCondition();
     Condition consumerCanConsume = lock.newCondition();
 
-
     public void consume() throws InterruptedException {
         System.out.println("Consumer thread started");
         try {
@@ -18,7 +17,7 @@ public class Monitor {
             }
             int numberToConsume = getRandomNumber(1, maximalNumberToConsumerOrProduce);
             int currentNumber = buffor.getNumber();
-            buffor.setNumber(currentNumber+numberToConsume);
+            buffor.setNumber(currentNumber + numberToConsume);
             producentCanProduce.signal();
         } finally {
             lock.unlock();
@@ -35,7 +34,7 @@ public class Monitor {
             }
             int numberToProduce = getRandomNumber(1, maximalNumberToConsumerOrProduce);
             int currentNumber = buffor.getNumber();
-            buffor.setNumber(currentNumber+numberToProduce);
+            buffor.setNumber(currentNumber + numberToProduce);
             consumerCanConsume.signal();
         } finally {
             lock.unlock();
