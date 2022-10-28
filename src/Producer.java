@@ -10,9 +10,9 @@ public class Producer extends Thread {
     @Override
     public void run() {
             try {
-                for (int i = 0; i < repetitionRate; i++) {
+                for (;;)
                     monitor.produce();
-                }
+
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
