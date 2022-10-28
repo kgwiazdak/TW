@@ -14,7 +14,5 @@ public class Main {
 
         for (Thread thread : producentsAndConsumers)
             thread.join();
-
-        System.out.println(monitor.getNumber());
     }
 }

@@ -2,24 +2,23 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Monitor {
+    private static final int maximalNumberToConsumerOrProduce = 10;
+    Buffor buffor = new Buffor();
     ReentrantLock lock = new ReentrantLock();
     Condition producentCanProduce = lock.newCondition();
     Condition consumerCanConsume = lock.newCondition();
 
-    int number = 0;
-
-    public int getNumber() {
-        return number;
-    }
 
     public void consume() throws InterruptedException {
         System.out.println("Consumer thread started");
         try {
             lock.lock();
-            while (number==0) {
+            while (buffor.getNumber() < 0) {
                 consumerCanConsume.await();
             }
-            number=0;
+            int numberToConsume = getRandomNumber(1, maximalNumberToConsumerOrProduce);
+            int currentNumber = buffor.getNumber();
+            buffor.setNumber(currentNumber+numberToConsume);
             producentCanProduce.signal();
         } finally {
             lock.unlock();
@@ -31,14 +30,20 @@ public class Monitor {
         System.out.println("Producer thread started");
         try {
             lock.lock();
-            while (number==1) {
+            while (buffor.getNumber() < 2 * maximalNumberToConsumerOrProduce) {
                 producentCanProduce.await();
             }
-            number=1;
+            int numberToProduce = getRandomNumber(1, maximalNumberToConsumerOrProduce);
+            int currentNumber = buffor.getNumber();
+            buffor.setNumber(currentNumber+numberToProduce);
             consumerCanConsume.signal();
         } finally {
             lock.unlock();
         }
         System.out.println("Producer thread ended");
+    }
+
+    public int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
     }
 }
