@@ -2,47 +2,60 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Monitor {
-    private static final int maximalNumberToConsumerOrProduce = 10;
     Buffor buffor = new Buffor();
     ReentrantLock lock = new ReentrantLock();
-    Condition producentCanProduce = lock.newCondition();
-    Condition consumerCanConsume = lock.newCondition();
+    Condition restOfProducers = lock.newCondition();
+    Condition restOfConsumers = lock.newCondition();
+    Condition firstProducer = lock.newCondition();
+    Condition firstConsumer = lock.newCondition();
+    boolean isFirstProducentOccupied = false;
+    boolean isFirstConsumerOccupied = false;
 
-    public void consume() throws InterruptedException {
+    public void consume(int numberToConsume) throws InterruptedException {
         System.out.println("Consumer thread started");
         try {
             lock.lock();
-            while (buffor.getNumber() < 0) {
-                consumerCanConsume.await();
+            while (isFirstConsumerOccupied) {
+                restOfConsumers.await();
             }
-            int numberToConsume = getRandomNumber(1, maximalNumberToConsumerOrProduce);
+            while (buffor.getNumber()<numberToConsume) {
+                isFirstConsumerOccupied=true;
+                firstConsumer.await();
+            }
             int currentNumber = buffor.getNumber();
-            buffor.setNumber(currentNumber + numberToConsume);
-            producentCanProduce.signal();
+            buffor.setNumber(currentNumber-numberToConsume);
+            isFirstConsumerOccupied=false;
+            restOfConsumers.signal();
+            firstProducer.signal();
         } finally {
             lock.unlock();
         }
         System.out.println("Consumer thread ended");
     }
 
-    public void produce() throws InterruptedException {
+    public void produce(int numberToProduce) throws InterruptedException {
         System.out.println("Producer thread started");
         try {
             lock.lock();
-            while (buffor.getNumber() < 2 * maximalNumberToConsumerOrProduce) {
-                producentCanProduce.await();
+
+            while (isFirstProducentOccupied) {
+                restOfProducers.await();
             }
-            int numberToProduce = getRandomNumber(1, maximalNumberToConsumerOrProduce);
+            while (buffor.getNumber()+numberToProduce>buffor.getMaximalNumber()) {
+                isFirstProducentOccupied=true;
+                firstProducer.await();
+            }
             int currentNumber = buffor.getNumber();
-            buffor.setNumber(currentNumber + numberToProduce);
-            consumerCanConsume.signal();
+            buffor.setNumber(currentNumber+numberToProduce);
+            isFirstProducentOccupied=false;
+            restOfProducers.signal();
+            firstConsumer.signal();
         } finally {
             lock.unlock();
         }
         System.out.println("Producer thread ended");
     }
-
-    private int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
-    }
 }
+
+
+// uklad zdarzen jak powstaje zakleszczenie
