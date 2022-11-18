@@ -2,11 +2,8 @@ public class Buffor {
     private int number = 0;
 
     public int getMaximalNumber() {
-        return maximalNumber;
+        return 100;
     }
-
-    private final int maximalNumber = 20;
-
 
     public int getNumber() {
         return number;

@@ -1,27 +1,32 @@
 public class Producer extends Thread {
-    private static final int maximalNumberToConsumerOrProduce = 10;
+    private final Type type;
     Monitor monitor;
-    int repetitionRate;
 
 
-    public Producer(Monitor monitor, int repetitionRate) {
+    public Producer(Monitor monitor, Type type) {
         this.monitor = monitor;
-        this.repetitionRate = repetitionRate;
+        this.type = type;
     }
 
     @Override
     public void run() {
         try {
-            for (; ; ) {
-                monitor.produce(getRandomNumber());
-                System.out.println("Produced");
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                System.out.printf("[%s] producer started\n", type);
+                monitor.produce(getRandomNumber(type.getValue()));
+                System.out.printf("[%s] producer ended\n", type);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private int getRandomNumber() {
-        return (int) ((Math.random() * (maximalNumberToConsumerOrProduce - 1)) + 1);
+    private int getRandomNumber(int max) {
+        return (int) ((Math.random() * (max - 1)) + 1);
+    }
+
+    public Type getType() {
+        return type;
     }
 }

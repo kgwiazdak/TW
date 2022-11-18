@@ -4,15 +4,19 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         Monitor monitor = new Monitor();
-        ArrayList<? extends Thread> producentsAndConsumers = new ArrayList<>(List.of(
-                new Producer(monitor, 10000),
-                new Producer(monitor, 10000),
-                new Consumer(monitor, 10000)
-        ));
-        for (Thread thread : producentsAndConsumers)
+        int smallMaximalNumber = 20;
+        int bigMaximalNumber = 50;
+        ArrayList<Thread> producersAndConsumers = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            producersAndConsumers.add(new Consumer(monitor, Type.SMALL));
+            producersAndConsumers.add(new Producer(monitor, Type.SMALL));
+        }
+        producersAndConsumers.add(new Producer(monitor, Type.BIG));
+
+        for (Thread thread : producersAndConsumers)
             thread.start();
 
-        for (Thread thread : producentsAndConsumers)
+        for (Thread thread : producersAndConsumers)
             thread.join();
     }
 }

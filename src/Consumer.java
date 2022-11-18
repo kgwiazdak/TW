@@ -1,27 +1,32 @@
 public class Consumer extends Thread {
     Monitor monitor;
-    int repetitionRate;
-    private static final int maximalNumberToConsumerOrProduce = 10;
+    private final Type type;
 
 
-    public Consumer(Monitor monitor, int repetitionRate) {
+    public Consumer(Monitor monitor, Type type) {
         this.monitor = monitor;
-        this.repetitionRate = repetitionRate;
+        this.type = type;
     }
 
     @Override
     public void run() {
         try {
-            for (; ; ){
-                monitor.consume(getRandomNumber());
-                System.out.println("Consumed");
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                System.out.printf("[%s] consumer started\n", type);
+                monitor.consume(getRandomNumber(type.getValue()));
+                System.out.printf("[%s] consumer ended\n", type);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private int getRandomNumber() {
-        return (int) ((Math.random() * (maximalNumberToConsumerOrProduce - 1)) + 1);
+    private int getRandomNumber(int max) {
+        return (int) ((Math.random() * (max - 1)) + 1);
+    }
+
+    public Type getType() {
+        return type;
     }
 }

@@ -12,7 +12,6 @@ public class Monitor {
     boolean isFirstConsumerOccupied = false;
 
     public void consume(int numberToConsume) throws InterruptedException {
-        System.out.println("Consumer thread started");
         try {
             lock.lock();
             while (isFirstConsumerOccupied) {
@@ -30,11 +29,9 @@ public class Monitor {
         } finally {
             lock.unlock();
         }
-        System.out.println("Consumer thread ended");
     }
 
     public void produce(int numberToProduce) throws InterruptedException {
-        System.out.println("Producer thread started");
         try {
             lock.lock();
 
@@ -53,9 +50,5 @@ public class Monitor {
         } finally {
             lock.unlock();
         }
-        System.out.println("Producer thread ended");
     }
 }
-
-
-// uklad zdarzen jak powstaje zakleszczenie
