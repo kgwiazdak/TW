@@ -8,10 +8,14 @@ public class Monitor {
     Condition restOfConsumers = lock.newCondition();
     Condition firstProducer = lock.newCondition();
     Condition firstConsumer = lock.newCondition();
-    boolean isFirstProducentOccupied = false;
+    boolean isFirstProducerOccupied = false;
     boolean isFirstConsumerOccupied = false;
+    long smallProducerCounter = 0;
+    long bigProducerCounter = 0;
+    long smallConsumerCounter = 0;
+    long bigConsumerCounter = 0;
 
-    public void consume(int numberToConsume) throws InterruptedException {
+    public void consume(int numberToConsume, Type type) throws InterruptedException {
         try {
             lock.lock();
             while (isFirstConsumerOccupied) {
@@ -23,6 +27,12 @@ public class Monitor {
             }
             int currentNumber = buffor.getNumber();
             buffor.setNumber(currentNumber-numberToConsume);
+            if (type.equals(Type.BIG)){
+                bigConsumerCounter++;
+            } else {
+                smallConsumerCounter++;
+            }
+            showStats();
             isFirstConsumerOccupied=false;
             restOfConsumers.signal();
             firstProducer.signal();
@@ -31,24 +41,37 @@ public class Monitor {
         }
     }
 
-    public void produce(int numberToProduce) throws InterruptedException {
+    public void produce(int numberToProduce, Type type) throws InterruptedException {
         try {
             lock.lock();
 
-            while (isFirstProducentOccupied) {
+            while (isFirstProducerOccupied) {
                 restOfProducers.await();
             }
             while (buffor.getNumber()+numberToProduce>buffor.getMaximalNumber()) {
-                isFirstProducentOccupied=true;
+                isFirstProducerOccupied =true;
                 firstProducer.await();
             }
             int currentNumber = buffor.getNumber();
             buffor.setNumber(currentNumber+numberToProduce);
-            isFirstProducentOccupied=false;
+            if (type.equals(Type.BIG)){
+                bigProducerCounter++;
+            } else {
+                smallProducerCounter++;
+            }
+            showStats();
+            isFirstProducerOccupied =false;
             restOfProducers.signal();
             firstConsumer.signal();
         } finally {
             lock.unlock();
         }
+    }
+
+    private void showStats(){
+        System.out.println("smallConsumerCounter: " + smallConsumerCounter);
+        System.out.println("bigConsumerCounter: " + bigConsumerCounter);
+        System.out.println("smallProducerCounter: " + smallProducerCounter);
+        System.out.println("bigProducerCounter: " + bigProducerCounter);
     }
 }
