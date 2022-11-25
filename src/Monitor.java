@@ -8,8 +8,6 @@ public class Monitor {
     Condition restOfConsumers = lock.newCondition();
     Condition firstProducer = lock.newCondition();
     Condition firstConsumer = lock.newCondition();
-    boolean isFirstProducerOccupied = false;
-    boolean isFirstConsumerOccupied = false;
     long smallProducerCounter = 0;
     long bigProducerCounter = 0;
     long smallConsumerCounter = 0;
@@ -18,12 +16,14 @@ public class Monitor {
     public void consume(int numberToConsume, Type type) throws InterruptedException {
         try {
             lock.lock();
-            while (isFirstConsumerOccupied) {
+            System.out.println("Waiting in the consumers lock");
+            while (lock.hasWaiters(firstConsumer)) {
                 restOfConsumers.await();
+                System.out.println("Waiting for rest of consumers");
             }
             while (buffor.getNumber()<numberToConsume) {
-                isFirstConsumerOccupied=true;
                 firstConsumer.await();
+                System.out.println("Waiting for first consumer");
             }
             int currentNumber = buffor.getNumber();
             buffor.setNumber(currentNumber-numberToConsume);
@@ -33,7 +33,6 @@ public class Monitor {
                 smallConsumerCounter++;
             }
             showStats();
-            isFirstConsumerOccupied=false;
             restOfConsumers.signal();
             firstProducer.signal();
         } finally {
@@ -44,13 +43,14 @@ public class Monitor {
     public void produce(int numberToProduce, Type type) throws InterruptedException {
         try {
             lock.lock();
-
-            while (isFirstProducerOccupied) {
+            System.out.println("Waiting in the producers lock");
+            while (lock.hasWaiters(firstProducer)) {
                 restOfProducers.await();
+                System.out.println("Waiting for rest of producers");
             }
             while (buffor.getNumber()+numberToProduce>buffor.getMaximalNumber()) {
-                isFirstProducerOccupied =true;
                 firstProducer.await();
+                System.out.println("Waiting for first of producest");
             }
             int currentNumber = buffor.getNumber();
             buffor.setNumber(currentNumber+numberToProduce);
@@ -60,7 +60,6 @@ public class Monitor {
                 smallProducerCounter++;
             }
             showStats();
-            isFirstProducerOccupied =false;
             restOfProducers.signal();
             firstConsumer.signal();
         } finally {

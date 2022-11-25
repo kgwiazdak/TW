@@ -14,7 +14,7 @@ public class Consumer extends Thread {
             //noinspection InfiniteLoopStatement
             while (true) {
                 System.out.printf("[%s] consumer started\n", type);
-                monitor.consume(getRandomNumber(type.getValue()));
+                monitor.consume(getRandomNumber(type.getValue()), type);
                 System.out.printf("[%s] consumer ended\n", type);
             }
         } catch (InterruptedException e) {

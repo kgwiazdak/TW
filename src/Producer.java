@@ -14,7 +14,7 @@ public class Producer extends Thread {
             //noinspection InfiniteLoopStatement
             while (true) {
                 System.out.printf("[%s] producer started\n", type);
-                monitor.produce(getRandomNumber(type.getValue()));
+                monitor.produce(getRandomNumber(type.getValue()), type);
                 System.out.printf("[%s] producer ended\n", type);
             }
         } catch (InterruptedException e) {
